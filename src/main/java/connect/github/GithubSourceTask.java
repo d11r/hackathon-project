@@ -35,11 +35,6 @@ public class GithubSourceTask extends SourceTask {
     private String githubInterval;
     private Integer interval;
 
-//    private Date snapshotDate;
-
-    // millis of last poll
-    private long lastPoll = 0;
-
     private Logger log = Logger.getLogger(GithubSourceTask.class.getName());
 
     @Override
@@ -48,19 +43,6 @@ public class GithubSourceTask extends SourceTask {
         Repository repository = api.getRepository(repository_full_name);
 
         List<SourceRecord> records = new ArrayList<>();
-
-        // Throttle
-//        log.info("lastPollDelta:" + (System.currentTimeMillis() - lastPoll) + " interval:" + interval);
-//        if (lastPoll != 0) {
-//            if (System.currentTimeMillis() < (lastPoll + (interval * 1000))) {
-//                log.info("----------------------------------------------------------- exit polling, " + (System.currentTimeMillis() - lastPoll) / 1000 + " secs since last poll.");
-//                Thread.sleep(1000);
-//                return records;
-//            }
-//        }
-//        lastPoll = System.currentTimeMillis();
-//        String snapshotDateString = ymd.format(snapshotDate);
-        // end throttle
 
         // in order to start from 1, we have to assign it 0 before the do-while loop.
         int page = 0;
@@ -82,8 +64,6 @@ public class GithubSourceTask extends SourceTask {
         Schema schema = GithubSchema.githubIssue;
 
         Struct struct = new Struct(schema);
-
-
 
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_CREATED_AT, issue.created_at);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_ID, issue.id);
@@ -123,7 +103,6 @@ public class GithubSourceTask extends SourceTask {
         githubPass = props.get(GithubSourceConfig.GITHUB_PASS_CONFIG);
         githubIssuesTopic = props.get(GithubSourceConfig.GITHUB_ISSUES_TOPIC_CONFIG);
         githubInterval = props.get(GithubSourceConfig.GITHUB_INTERVAL_SECONDS_CONFIG);
-//		githubAPIUrl			= props.get( GithubSourceConfig.GITHUB_)
 
         if ((githubInterval == null || githubInterval.isEmpty())) {
             interval = 3600;
