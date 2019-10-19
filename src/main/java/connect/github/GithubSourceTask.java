@@ -93,9 +93,31 @@ public class GithubSourceTask extends SourceTask {
     public SourceRecord getSourceRecords(Issue issue) {
         Schema schema = GithubSchema.githubIssue;
 
+        System.out.println("beginning");
+        System.out.println(issue);
+        System.out.println("end");
         Struct struct = new Struct(schema);
+
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_CREATED_AT, issue.created_at);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_ID, issue.id);
-        // ...
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_AUTHOR_ASSOCIATION, issue.author_association);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_BODY, issue.body);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_CLOSED_AT, issue.closed_at);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_COMMENTS, issue.comments);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_COMMENTS_URL, issue.comments_url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_EVENTS_URL, issue.events_url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_HTML_URL, issue.html_url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LABELS, issue.labels);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LOCKED, issue.locked);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LABELS_URL, issue.labels_url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_NODE_ID, issue.node_id);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_NUMBER, issue.number);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_REPOSITORY_URL, issue.repository_url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_URL, issue.url);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_TITLE, issue.title);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_STATE, issue.state);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_UPDATED_AT, issue.updated_at);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_CLOSED_AT, issue.closed_at);
 
         // dummy partition map
         Map<String, String> hm = new HashMap<>();
