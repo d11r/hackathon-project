@@ -1,6 +1,9 @@
 package connect.github;
 
 import model.github.Issue;
+import model.github.Repository;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.source.SourceTask;
 
@@ -9,114 +12,123 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static connect.github.GithubApi.getIssues;
-
 
 public class GithubSourceTask extends SourceTask {
+    private static final String GITHUB_USER = "marko-brodarski";
+    private static final String GITHUB_PASSWORD = "CQAn57N7j4NzWQp";
 
-	private static TimeZone tzUTC = TimeZone.getTimeZone("UTC");
-	private static DateFormat dfZULU = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-	private static DateFormat ymd = new SimpleDateFormat("yyyy-MM-dd");
-	static {
-		dfZULU.setTimeZone(tzUTC);
-	}
+    private GithubApi api = new GithubApi(GITHUB_USER, GITHUB_PASSWORD);
 
-	private String version = "0.0.1";
-	
-	private String githubUser;
-	private String githubPass;
-	private String githubIssuesTopic;
-	private String githubInterval;
-	private Integer interval;
+    private static TimeZone tzUTC = TimeZone.getTimeZone("UTC");
+    private static DateFormat dfZULU = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private static DateFormat ymd = new SimpleDateFormat("yyyy-MM-dd");
 
-	private Date snapshotDate;
+    static {
+        dfZULU.setTimeZone(tzUTC);
+    }
 
-	// millis of last poll
-	private long lastPoll = 0;
+    private String version = "0.0.1";
 
-	private Logger log = Logger.getLogger(GithubSourceTask.class.getName());
+    private String githubUser;
+    private String githubPass;
+    private String githubIssuesTopic;
+    private String githubInterval;
+    private Integer interval;
 
-	@Override
-	public List<SourceRecord> poll() throws InterruptedException {
-		String URL = "https://api.github.com/repos/flutter/flutter/issues";
-		String GITHUB_USER = "marko-brodarski";
-		String GITHUB_PASSWORD = "CQAn57N7j4NzWQp";
-		Issue[] issues = getIssues(URL, GITHUB_USER, GITHUB_PASSWORD);
+//    private Date snapshotDate;
 
-		List<SourceRecord> records = new ArrayList<>();
+    // millis of last poll
+    private long lastPoll = 0;
 
-		 log.info("lastPollDelta:" + (System.currentTimeMillis() - lastPoll) + " interval:" + interval );
+    private Logger log = Logger.getLogger(GithubSourceTask.class.getName());
 
-		if ( lastPoll != 0 ) {
-			if ( System.currentTimeMillis() < ( lastPoll + (interval * 1000) ) ) {
-				log.info("----------------------------------------------------------- exit polling, " + ( System.currentTimeMillis() - lastPoll ) / 1000 + " secs since last poll.");
-				Thread.sleep(1000);
-				return records;
-			}
-		}
+    @Override
+    public List<SourceRecord> poll() throws InterruptedException {
+        String repository_full_name = "rust-lang/rust";
+        Repository repository = api.getRepository(repository_full_name);
+
+        List<SourceRecord> records = new ArrayList<>();
+
+        // Throttle
+//        log.info("lastPollDelta:" + (System.currentTimeMillis() - lastPoll) + " interval:" + interval);
+//        if (lastPoll != 0) {
+//            if (System.currentTimeMillis() < (lastPoll + (interval * 1000))) {
+//                log.info("----------------------------------------------------------- exit polling, " + (System.currentTimeMillis() - lastPoll) / 1000 + " secs since last poll.");
+//                Thread.sleep(1000);
+//                return records;
+//            }
+//        }
+//        lastPoll = System.currentTimeMillis();
+//        String snapshotDateString = ymd.format(snapshotDate);
+        // end throttle
+
+        // in order to start from 1, we have to assign it 0 before the do-while loop.
+        int page = 0;
+        List<Issue> issues;
+
+        do {
+            page++;
+            issues = api.getIssues(repository, page);
+
+            System.out.println("Got " + issues.size() + " issues from page " + page);
+
+            issues.stream().map(this::getSourceRecords).forEach(records::add);
+        } while (issues.size() > 0);
+
+//        if (sonarBaseComponentKey != null && !sonarBaseComponentKey.isEmpty()) {
 //
-//		lastPoll = System.currentTimeMillis();
+//            page = 0;
+//            SonarcubeMeasuresResult smr;
+//            do {
+//                page++;
+//                smr = SonarqubeApi.getMeasures(sonarURL, sonarUser, sonarPass, sonarMetrics, sonarBaseComponentKey, page);
+//                records.addAll(getSonarMeasureRecords(smr, snapshotDateString));
+//            } while (page * smr.paging.pageSize < smr.paging.total);
 //
-//		String snapshotDateString = ymd.format(snapshotDate);
-//
-//		int page = 0;
-//
-//		if ( sonarProjectKeys!= null && !sonarProjectKeys.isEmpty()) {
-//
-//			SonarcubeIssuesResult iResult;
-//			do {
-//				page++;
-//				iResult = SonarqubeApi.getIssues(sonarURL, sonarUser, sonarPass, sonarProjectKeys, page);
-//				records.addAll( getSonarIssueRecords(iResult, snapshotDateString) );
-//			} while ( page*iResult.paging.pageSize < iResult.paging.total );
-//
-//		}
-//
-//		if ( sonarBaseComponentKey != null && !sonarBaseComponentKey.isEmpty() ) {
-//
-//			page = 0;
-//			SonarcubeMeasuresResult smr;
-//			do {
-//				page++;
-//				smr = SonarqubeApi.getMeasures(sonarURL, sonarUser, sonarPass, sonarMetrics, sonarBaseComponentKey, page);
-//				records.addAll( getSonarMeasureRecords(smr, snapshotDateString) );
-//			} while ( page * smr.paging.pageSize < smr.paging.total );
-//
-//		}
-//
-		return records;
-	}
+//        }
 
-	private List<SourceRecord>  getSourceRecords( Issue[] issues ) {
-		//TODO: IMPLEMENT!
-		return null;
-	}
-	
-	@Override
-	public void start(Map<String, String> props) {
+        return records;
+    }
 
-		log.info("connect-github: start");
-		log.info(props.toString());
+    public SourceRecord getSourceRecords(Issue issue) {
+        Schema schema = GithubSchema.githubIssue;
 
-		githubUser 				= props.get( GithubSourceConfig.GITHUB_USER_CONFIG );
-		githubPass 				= props.get( GithubSourceConfig.GITHUB_PASS_CONFIG );
-		githubIssuesTopic 		= props.get( GithubSourceConfig.GITHUB_ISSUES_TOPIC_CONFIG );
-		githubInterval 			= props.get( GithubSourceConfig.GITHUB_INTERVAL_SECONDS_CONFIG );
+        Struct struct = new Struct(schema);
+        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_ID, issue.id);
+        // ...
+
+        // dummy partition map
+        Map<String, String> hm = new HashMap<>();
+        hm.put("2", "2");
+
+        return new SourceRecord(hm, hm, githubIssuesTopic, schema, struct);
+    }
+
+    @Override
+    public void start(Map<String, String> props) {
+
+        log.info("connect-github: start");
+        log.info(props.toString());
+
+        githubUser = props.get(GithubSourceConfig.GITHUB_USER_CONFIG);
+        githubPass = props.get(GithubSourceConfig.GITHUB_PASS_CONFIG);
+        githubIssuesTopic = props.get(GithubSourceConfig.GITHUB_ISSUES_TOPIC_CONFIG);
+        githubInterval = props.get(GithubSourceConfig.GITHUB_INTERVAL_SECONDS_CONFIG);
 //		githubAPIUrl			= props.get( GithubSourceConfig.GITHUB_)
-		
-		if ( (githubInterval == null || githubInterval.isEmpty()) ) {
-			interval = 3600;
-		} else {
-			interval = Integer.parseInt(githubInterval);
-		}
-	}
 
-	@Override
-	public void stop() {
+        if ((githubInterval == null || githubInterval.isEmpty())) {
+            interval = 3600;
+        } else {
+            interval = Integer.parseInt(githubInterval);
+        }
+    }
 
-	}
+    @Override
+    public void stop() {
 
-	public String version() {
-		return version;
-	}
+    }
+
+    public String version() {
+        return version;
+    }
 }

@@ -5,44 +5,69 @@ import model.github.Issue;
 import model.github.Repository;
 import util.RESTInvoker;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GithubApi {
-	public static Issue[] getIssues( String ghUrl, String username, String password ) {
-		// get amount of issues
-		String repoURL = "https://api.github.com/repos/flutter/flutter";
-		RESTInvoker ri = new RESTInvoker(repoURL, username, password);
-		Gson gson = new Gson();
 
-		List<Issue> allIssues = new ArrayList<Issue>();
+    public GithubApi(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
-		try {
-			Repository repository = gson.fromJson(ri.getDataFromServer(""), Repository.class);
-			System.out.println(repository);
-			Long open_issues = repository.open_issues_count;
-			Long noOfPaginations = open_issues / 100;
+    private String username;
+    private String password;
 
-			String templ = "/issues?page=";
-			for (long i = 0; i < noOfPaginations + 1; i++) {
-				System.out.println(i);
-				Issue[] is1=gson.fromJson(ri.getDataFromServer(templ + i), Issue[].class);
-				allIssues.addAll(Arrays.asList(is1));
-			}
+    public Repository getRepository(String repository) {
+        RESTInvoker ri = new RESTInvoker(baseRepositoryUrl(repository), username, password);
+        String response = ri.getDataFromServer("");
+        return new Gson().fromJson(response, Repository.class);
+    }
 
-			System.out.println(allIssues);
+    public List<Issue> getIssues(Repository repository, int page) {
+        assert page >= 1;
+        try {
+            System.out.println(repository);
 
-		} catch (Exception e){
-			System.out.println(e.toString());
-			return null;
-		}
+            String issuesUrl = makeIssuesUrl(repository, page);
+            RESTInvoker ri = new RESTInvoker(issuesUrl, username, password);
+            String response = ri.getDataFromServer();
+            Issue[] issuesArray = new Gson().fromJson(response, Issue[].class);
+            List<Issue> issues = Arrays.asList(issuesArray);
 
-		return (Issue[]) allIssues.toArray();
-	}
+            System.out.println(issues);
 
-	public static void main(String[] args) {
-		String URL = "https://api.github.com/repos/flutter/flutter/issues";
-		Issue[] issues = getIssues(URL, "marko-brodarski", "CQAn57N7j4NzWQp");
-	}
+            return issues;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            return Collections.emptyList();
+        }
+    }
+
+    // which is maximum GitHub allows us, by the way
+    private static final int PER_PAGE = 100;
+
+    String baseRepositoryUrl(String repository) {
+        return "https://api.github.com/repos/" + repository;
+    }
+
+    String makeIssuesUrl(String repository, int page) {
+        return baseRepositoryUrl(repository) + "/issues?page=" + page + "&per_page=" + PER_PAGE;
+    }
+
+    String makeIssuesUrl(Repository repository, int page) {
+        return makeIssuesUrl(repository.full_name, page);
+    }
+
+    public static void main(String[] args) {
+        String repository_full_name = "flutter/flutter";
+        String username = "marko-brodarski";
+        String password = "CQAn57N7j4NzWQp";
+
+        GithubApi githubApi = new GithubApi(username, password);
+        Repository repository = githubApi.getRepository(repository_full_name);
+
+        List<Issue> issues = githubApi.getIssues(repository, 1);
+    }
 }
