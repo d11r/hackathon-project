@@ -3,91 +3,90 @@ package model.github;
 import com.google.gson.annotations.SerializedName;
 
 public class Repository {
-	
-	Long id;
-	String node_id;
-	String name;
-	String full_name;
-	
-	@SerializedName("private") // keyword
-	Boolean privateState;
-	
-	User owner;
-	
-	String html_url;
-	String description;
-	Boolean fork;
-	String url;
-	
-	String forks_url;
-	String keys_url;
-	String collaborators_url;
-	String teams_url;
-	String hooks_url;
-	String issue_events_url;
-	String events_url;
-	String assignees_url;
-	String branches_url;
-	String tags_url;
-	String blobs_url;
-	String git_tags_url;
-	String git_refs_url;
-	String trees_url;
-	String statuses_url;
-	String languages_url;
-	String stargazers_url;
-	String contributors_url;
-	String subscribers_url;
-	String subscription_url;
-	String commits_url;
-	String git_commits_url;
-	String comments_url;
-	String issue_comment_url;
-	String contents_url;
-	String compare_url;
-	String merges_url;
-	String archive_url;
-	String downloads_url;
-	String issues_url;
-	String pulls_url;
-	String milestones_url;
-	String notifications_url;
-	String labels_url;
-	String releases_url;
-	String deployments_url;
-	
-	// timestamps, e.g. "2019-02-21T11:46:32Z"
-	String created_at;
-	String updated_at;
-	String pushed_at;
-	
-	String git_url;
-	String ssh_url;
-	String clone_url;
-	String svn_url;
-	String homepage;
-	Long size;
-	Long stargazers_count;
-	Long watchers_count;
-	String language;
-	
-	Boolean has_issues;
-	Boolean has_projects;
-	Boolean has_downloads;
-	Boolean has_wiki;
-	Boolean has_pages;
-	Long forks_count;
-	String mirror_url ;
-	
-	Boolean archived;
-	Boolean disabled;
-	public Long open_issues_count;
-	
-	License license;
-	
-	Long forks;
-	Long open_issues;
-	Long watchers;
-	String default_branch;
+    public Long id;
+    public String node_id;
+    public String name;
+    public String full_name;
+
+    @SerializedName("private") // keyword
+    public Boolean privateState;
+
+    public User owner;
+
+    public String html_url;
+    public String description;
+    public Boolean fork;
+    public String url;
+
+    public String forks_url;
+    public String keys_url;
+    public String collaborators_url;
+    public String teams_url;
+    public String hooks_url;
+    public String issue_events_url;
+    public String events_url;
+    public String assignees_url;
+    public String branches_url;
+    public String tags_url;
+    public String blobs_url;
+    public String git_tags_url;
+    public String git_refs_url;
+    public String trees_url;
+    public String statuses_url;
+    public String languages_url;
+    public String stargazers_url;
+    public String contributors_url;
+    public String subscribers_url;
+    public String subscription_url;
+    public String commits_url;
+    public String git_commits_url;
+    public String comments_url;
+    public String issue_comment_url;
+    public String contents_url;
+    public String compare_url;
+    public String merges_url;
+    public String archive_url;
+    public String downloads_url;
+    public String issues_url;
+    public String pulls_url;
+    public String milestones_url;
+    public String notifications_url;
+    public String labels_url;
+    public String releases_url;
+    public String deployments_url;
+
+    // timestamps, e.g. "2019-02-21T11:46:32Z"
+    public String created_at;
+    public String updated_at;
+    public String pushed_at;
+
+    public String git_url;
+    public String ssh_url;
+    public String clone_url;
+    public String svn_url;
+    public String homepage;
+    public Long size;
+    public Long stargazers_count;
+    public Long watchers_count;
+    public String language;
+
+    public Boolean has_issues;
+    public Boolean has_projects;
+    public Boolean has_downloads;
+    public Boolean has_wiki;
+    public Boolean has_pages;
+    public Long forks_count;
+    public String mirror_url;
+
+    public Boolean archived;
+    public Boolean disabled;
+    public Long open_issues_count;
+
+    public License license;
+
+    public Long forks;
+    public Long open_issues;
+    public Long watchers;
+    public String default_branch;
 
 }
