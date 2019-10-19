@@ -75,18 +75,6 @@ public class GithubSourceTask extends SourceTask {
             issues.stream().map(this::getSourceRecords).forEach(records::add);
         } while (issues.size() > 0);
 
-//        if (sonarBaseComponentKey != null && !sonarBaseComponentKey.isEmpty()) {
-//
-//            page = 0;
-//            SonarcubeMeasuresResult smr;
-//            do {
-//                page++;
-//                smr = SonarqubeApi.getMeasures(sonarURL, sonarUser, sonarPass, sonarMetrics, sonarBaseComponentKey, page);
-//                records.addAll(getSonarMeasureRecords(smr, snapshotDateString));
-//            } while (page * smr.paging.pageSize < smr.paging.total);
-//
-//        }
-
         return records;
     }
 
@@ -98,6 +86,8 @@ public class GithubSourceTask extends SourceTask {
         System.out.println("end");
         Struct struct = new Struct(schema);
 
+
+
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_CREATED_AT, issue.created_at);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_ID, issue.id);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_AUTHOR_ASSOCIATION, issue.author_association);
@@ -107,7 +97,7 @@ public class GithubSourceTask extends SourceTask {
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_COMMENTS_URL, issue.comments_url);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_EVENTS_URL, issue.events_url);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_HTML_URL, issue.html_url);
-        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LABELS, issue.labels);
+//        struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LABELS, issue.labels);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LOCKED, issue.locked);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_LABELS_URL, issue.labels_url);
         struct.put(GithubSchema.FIELD_GITHUB_ISSUE_NODE_ID, issue.node_id);

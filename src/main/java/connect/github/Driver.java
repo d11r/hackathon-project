@@ -25,15 +25,15 @@ public class Driver {
 		Map<String,String> config = PropertyFile.get("./config/connect-github-source-worker.properties");
 		GithubSourceTask st = new GithubSourceTask();
 		st.start(config);
-		
+
 		while(true) {
 			List<SourceRecord> l = st.poll();
-			
+
 			for (SourceRecord sr : l) {
 				System.out.println(sr);
 			}
 		}
-		
+
 	}
 
 }
