@@ -81,9 +81,6 @@ public class GithubSourceTask extends SourceTask {
     public SourceRecord getSourceRecords(Issue issue) {
         Schema schema = GithubSchema.githubIssue;
 
-        System.out.println("beginning");
-        System.out.println(issue);
-        System.out.println("end");
         Struct struct = new Struct(schema);
 
 
