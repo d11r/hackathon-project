@@ -19,9 +19,9 @@ import util.PropertyFile;
  *
  */
 public class Driver {
-	
-	public static void main(String[] args) throws InterruptedException {
-		
+
+	public static void main(String[] args) {
+
 		Map<String,String> config = PropertyFile.get("./config/connect-github-source-worker.properties");
 		GithubSourceTask st = new GithubSourceTask();
 		st.start(config);

@@ -43,7 +43,7 @@ public class GithubSourceTask extends SourceTask {
     private Logger log = Logger.getLogger(GithubSourceTask.class.getName());
 
     @Override
-    public List<SourceRecord> poll() throws InterruptedException {
+    public List<SourceRecord> poll() {
         String repository_full_name = "rust-lang/rust";
         Repository repository = api.getRepository(repository_full_name);
 
