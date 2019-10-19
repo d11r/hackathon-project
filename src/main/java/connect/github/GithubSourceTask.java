@@ -6,10 +6,7 @@ import org.apache.kafka.connect.source.SourceTask;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static connect.github.GithubApi.getIssues;
@@ -41,12 +38,14 @@ public class GithubSourceTask extends SourceTask {
 
 	@Override
 	public List<SourceRecord> poll() throws InterruptedException {
-//		String URL = "https://api.github.com/repos/flutter/flutter/issues";
-//		Issue[] issues = getIssues(URL, "marko-brodarski", "CQAn57N7j4NzWQp");
+		String URL = "https://api.github.com/repos/flutter/flutter/issues";
+		String GITHUB_USER = "marko-brodarski";
+		String GITHUB_PASSWORD = "CQAn57N7j4NzWQp";
+		Issue[] issues = getIssues(URL, GITHUB_USER, GITHUB_PASSWORD);
 
 		List<SourceRecord> records = new ArrayList<>();
 
-		// log.info("lastPollDelta:" + (System.currentTimeMillis() - lastPoll) + " interval:" + interval );
+		 log.info("lastPollDelta:" + (System.currentTimeMillis() - lastPoll) + " interval:" + interval );
 
 		if ( lastPoll != 0 ) {
 			if ( System.currentTimeMillis() < ( lastPoll + (interval * 1000) ) ) {
@@ -55,36 +54,36 @@ public class GithubSourceTask extends SourceTask {
 				return records;
 			}
 		}
-
-		lastPoll = System.currentTimeMillis();
-
-		String snapshotDateString = ymd.format(snapshotDate);
-
-		int page = 0;
-
-		if ( sonarProjectKeys!= null && !sonarProjectKeys.isEmpty()) {
-
-			SonarcubeIssuesResult iResult;
-			do {
-				page++;
-				iResult = SonarqubeApi.getIssues(sonarURL, sonarUser, sonarPass, sonarProjectKeys, page);
-				records.addAll( getSonarIssueRecords(iResult, snapshotDateString) );
-			} while ( page*iResult.paging.pageSize < iResult.paging.total );
-
-		}
-
-		if ( sonarBaseComponentKey != null && !sonarBaseComponentKey.isEmpty() ) {
-
-			page = 0;
-			SonarcubeMeasuresResult smr;
-			do {
-				page++;
-				smr = SonarqubeApi.getMeasures(sonarURL, sonarUser, sonarPass, sonarMetrics, sonarBaseComponentKey, page);
-				records.addAll( getSonarMeasureRecords(smr, snapshotDateString) );
-			} while ( page * smr.paging.pageSize < smr.paging.total );
-
-		}
-
+//
+//		lastPoll = System.currentTimeMillis();
+//
+//		String snapshotDateString = ymd.format(snapshotDate);
+//
+//		int page = 0;
+//
+//		if ( sonarProjectKeys!= null && !sonarProjectKeys.isEmpty()) {
+//
+//			SonarcubeIssuesResult iResult;
+//			do {
+//				page++;
+//				iResult = SonarqubeApi.getIssues(sonarURL, sonarUser, sonarPass, sonarProjectKeys, page);
+//				records.addAll( getSonarIssueRecords(iResult, snapshotDateString) );
+//			} while ( page*iResult.paging.pageSize < iResult.paging.total );
+//
+//		}
+//
+//		if ( sonarBaseComponentKey != null && !sonarBaseComponentKey.isEmpty() ) {
+//
+//			page = 0;
+//			SonarcubeMeasuresResult smr;
+//			do {
+//				page++;
+//				smr = SonarqubeApi.getMeasures(sonarURL, sonarUser, sonarPass, sonarMetrics, sonarBaseComponentKey, page);
+//				records.addAll( getSonarMeasureRecords(smr, snapshotDateString) );
+//			} while ( page * smr.paging.pageSize < smr.paging.total );
+//
+//		}
+//
 		return records;
 	}
 
@@ -119,5 +118,5 @@ public class GithubSourceTask extends SourceTask {
 
 	public String version() {
 		return version;
-	}2
+	}
 }
